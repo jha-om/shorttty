@@ -19,8 +19,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         }}
       />
 
-      <div className="relative z-10 min-h-screen max-w-2/3 mx-auto">
-        <main className="min-h-screen border border-t-0 border-b-0 border-dashed border-gray-50/25">
+      <div className="relative z-10 min-h-screen px-12 md:px-36 mx-auto transition-all duration-500">
+        <main className="min-h-screen">
           <div className="px-6 py-4">
             <Header />
             
