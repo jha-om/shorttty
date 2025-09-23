@@ -8,19 +8,20 @@ const Auth = () => {
     const [getquery] = useSearchParams();
     const longURL = getquery.get('createNew');
     const navigate = useNavigate();
-
     // after user clicks on the login show the page where the user have to click on signin/signup with github
     // and if user before coming to the signup/login page, entered any url to shorten it we'll take the query param, do login first then resume the shortening of the URL.
 
     const { user, loading } = useAuth();
 
     useEffect(() => {
-        if (user?.id && longURL) {
-            navigate(`/dashboard/?createNew=${encodeURIComponent(longURL)}`)
-        } else if (user?.id) {
-            navigate('/dashboard');
+        if (!loading && user?.id) {    
+            if (longURL) {
+                navigate(`/dashboard/?createNew=${encodeURIComponent(longURL)}`)
+            } else {
+                navigate('/dashboard');
+            }
         }
-    }, [navigate, longURL, user])
+    }, [navigate, loading, longURL, user])
 
 
     const handleGithubSignIn = async () => {
@@ -51,7 +52,7 @@ const Auth = () => {
     // If user is not logged in, show login button
     return (
         <div className="min-h-[calc(100vh-150px)] flex items-center justify-center">
-            <div >
+            <div>
                 <h2 className="text-4xl font-bold text-white mb-6">
                     {longURL ? 'Sign in to shorten your URL' : 'Welcome to shorttty'}
                 </h2>

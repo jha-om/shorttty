@@ -8,8 +8,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { LinkIcon, LogOut, UserCircle2Icon } from "lucide-react"
 import { signOut } from "../utils/supabase"
+import { useAuth } from "@/hooks/use-auth"
 
 export default function Dropdown() {
+    const { user } = useAuth();
+
     const handleSignout = async () => {
         try {
             await signOut();
@@ -22,7 +25,7 @@ export default function Dropdown() {
         <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full overflow-hidden"><UserCircle2Icon className="w-10 h-10 cursor-pointer" /></DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>{user?.user_metadata?.full_name} Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="flex justify-between">Mah Links
                     <LinkIcon />

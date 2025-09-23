@@ -8,7 +8,7 @@ const Header = () => {
     const navigate = useNavigate();
 
     const { loading, userLoggedIn } = useAuth();
-    
+
     return (
         <nav className="p-7 border max-w-4xl md:max-w-5xl mx-auto rounded-full border-b-white/25 bg-white/5 backdrop-blur-2xl flex justify-between items-center">
             <div>
@@ -26,8 +26,10 @@ const Header = () => {
                 ) : userLoggedIn ? (
                     <Dropdown />
                 ) : (
-                    <Button 
-                        onClick={() => navigate('/auth')}
+                    <Button
+                        onClick={() => {
+                            navigate('/auth')
+                        }}
                         className="bg-[#e85d04]/70 hover:bg-[#e85d04]/90 text-white"
                     >
                         Login
