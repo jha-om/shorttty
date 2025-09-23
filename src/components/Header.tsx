@@ -1,4 +1,4 @@
-import useFetch from "@/hooks/use-fetch";
+import { useAuth } from "@/hooks/use-auth";
 import { Link2Icon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Dropdown from "./Dropdown";
@@ -7,7 +7,8 @@ import { Button } from "./ui/button";
 const Header = () => {
     const navigate = useNavigate();
 
-    const { loading, userLoggedIn } = useFetch();
+    const { loading, userLoggedIn } = useAuth();
+    
     return (
         <nav className="p-7 border max-w-4xl md:max-w-5xl mx-auto rounded-full border-b-white/25 bg-white/5 backdrop-blur-2xl flex justify-between items-center">
             <div>

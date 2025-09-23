@@ -1,19 +1,44 @@
 import AccordionComponent from "@/components/According"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import useFetch from "@/hooks/use-fetch"
-import { useState } from "react"
+import { useAuth } from "@/hooks/use-auth"
+import { useState, type FormEvent } from "react"
 import { useNavigate } from "react-router-dom"
 
 const Home = () => {
     const [longURL, setLongURL] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
     const navigate = useNavigate();
-    const { user } = useFetch();
+    const { user } = useAuth();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (user?.id && longURL) {
-            navigate(`/dashboard/?${longURL ? (`createNew=${encodeURIComponent(longURL)}`) : ""}`)
+
+        if (!longURL.trim()) {
+            alert("Please enter a URL");
+            return;
+        }
+        
+        try {
+            // to parse the url is even an actual URL or not.
+            new URL(longURL);
+        } catch {
+            alert("Please enter a valid URL");
+            return;
+        }
+        
+        setIsSubmitting(true);
+        
+        try {
+            if (user?.id && longURL) {
+                navigate(`/dashboard/?createNew=${encodeURIComponent(longURL)}`)
+            } else {
+            navigate(`/auth?createNew=${encodeURIComponent(longURL)}`); // Navigate to auth with URL
+        }
+        } catch (error) {
+            console.log("naviagation error:", error);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -37,9 +62,14 @@ const Home = () => {
                             type="url"
                             placeholder="Enter the long ass URL"
                             className="h-14 flex-1 px-6 py-4 text-white placeholder:text-gray-400 bg-white/10 border-white/20 rounded-lg"
+                            disabled={isSubmitting}
                         />
-                        <Button className="h-14 px-8 bg-[#e85d04]/70 hover:bg-[#e85d04]/90 cursor-pointer text-white transition-colors duration-300 rounded-lg" type="submit">
-                            Shortit
+                        <Button
+                            disabled={isSubmitting || !longURL.trim()}
+                            className="h-14 px-8 bg-[#e85d04]/70 hover:bg-[#e85d04]/90 cursor-pointer text-white transition-colors duration-300 rounded-lg"
+                            type="submit"
+                        >
+                            {isSubmitting ? "Processing..." : "Shortit"}
                         </Button>
                     </form>
                 </div>

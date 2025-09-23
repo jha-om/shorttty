@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import type { User } from "@/types";
 import supabase, { getUserDetails } from "@/utils/supabase";
-import type { User } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
+import { AuthContext } from "./auth-context";
 
-const useFetch = () => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [userLoggedIn, setUserLoggedIn] = useState(false);
@@ -30,25 +31,38 @@ const useFetch = () => {
             setLoading(false);
         }
     };
-    
+
     useEffect(() => {
-        checkUser();
-
+        // after refreshing supabase fires signed_in event rather than 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log("event, session:", event, session);
+            
+            try {
+                setError(null);
 
-            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                const userDetails = await getUserDetails();
-                if (userDetails) {
-                    setUser(userDetails);
-                    setUserLoggedIn(true);
+                if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                    if (session?.user) {
+                        setUser(session.user as User);
+                        setUserLoggedIn(true);
+                    } else {
+                        setUser(null);
+                        setUserLoggedIn(false);
+                    }
                 }
-            } else if (event === 'SIGNED_OUT') {
+                else if (event === 'SIGNED_OUT') {
+                    setUser(null);
+                    setUserLoggedIn(false);
+                }
+
+                setLoading(false);
+
+            } catch (error) {
+                console.error('Error in auth state change:', error);
+                setError(error instanceof Error ? error.message : "Auth error occurred");
                 setUser(null);
                 setUserLoggedIn(false);
+                setLoading(false);
             }
-            setLoading(false);
-        })
+        });
 
         // to unmount the subscription when auth state changes like when we remove the 
         // interval after setting the interval in js.
@@ -60,16 +74,17 @@ const useFetch = () => {
     const refetch = () => {
         setLoading(true);
         checkUser();
-    }
+    };
 
-    return {
-        user,
-        loading,
-        userLoggedIn,
-        error,
-        refetch,
-        checkUser
-    }
+    return (
+        <AuthContext.Provider value={{
+            user,
+            loading,
+            userLoggedIn,
+            error,
+            refetch
+        }}>
+            {children}
+        </AuthContext.Provider>
+    )
 }
-
-export default useFetch

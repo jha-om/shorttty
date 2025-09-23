@@ -41,11 +41,15 @@ export async function signOut() {
 
 export async function getUserDetails() {
     try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) {
-            throw error;
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+            throw sessionError;
         }
-        return user;
+        if (!session) {
+            return null;
+        }
+        console.log("entered this function");
+        return session.user;
     } catch (error) {
         console.log("Error getting user:", error);
         return null;
