@@ -1,6 +1,9 @@
 import supabase from "./supabase";
 
-export async function getClicksFromUrl(urlIds: []) {
+export async function getClicksFromUrl(urlIds: string[]): Promise<any[]> {
+    if (!urlIds.length) {
+        return [];
+    }
     const { data, error } = await supabase.from("clicks").select("*").in("url_id", urlIds);
     
     if (error) {
@@ -8,5 +11,5 @@ export async function getClicksFromUrl(urlIds: []) {
         throw new Error(error.message);
     }
 
-    return data;
+    return data || [];
 }

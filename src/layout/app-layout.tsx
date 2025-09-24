@@ -8,7 +8,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className="min-h-screen w-full bg-black relative overflow-hidden">
       <div
-        className="absolute inset-0 z-0 opacity-80"
+        className="absolute inset-0 z-0 opacity-65"
         style={{
           background: "#000000",
           backgroundImage: `
