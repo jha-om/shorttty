@@ -1,5 +1,4 @@
 import supabase, { supabaseUrl } from "./supabase";
-
 interface createUrlProp {
     title: string,
     longUrl: string,
@@ -55,5 +54,33 @@ export async function createUrl({ title, longUrl, customUrl, user_id, qrcode }: 
     if (error) {
         throw new Error("Error creating short URL");
     }
+    return data;
+}
+
+export async function getLongURL(id: string): Promise<any> {
+    const { data, error } = await supabase.from("urls").select("id, original_url").or(`short_url.eq.${id}, custom_url.eq.${id}`).single();
+
+
+    if (error) {
+        console.error("error fetching short link`");
+        throw new Error(error.message);
+    }
+    return data;
+}
+
+export async function getUrl(id: string, user_id: string): Promise<any> {
+    const { data, error } = await supabase
+        .from("urls")
+        .select("*")
+        .eq("id", id)
+        .eq("user_id", user_id)
+        .single()
+
+    if (error) {
+        console.error("unable to get this url");
+        throw new Error(error.message);
+    }
+    console.log(data);
+
     return data;
 }

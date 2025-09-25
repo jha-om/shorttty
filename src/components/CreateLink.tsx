@@ -133,7 +133,6 @@ export default function CreateLink() {
             } else {
                 navigate('/dashboard');
             }
-            // window.location.href = `/link/${url.id}`
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const fieldErrors: Partial<Record<keyof FormData, string>> = {};

@@ -20,7 +20,7 @@ export interface Url {
     qr?: string,
 }
 
-interface Click {
+export interface Click {
     id: string,
     url_id: string,
     created_at: string,

@@ -18,7 +18,7 @@ function App() {
             {/* unprotected routes */}
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/redirect/:id" element={<RedirectLink />} />
+            <Route path="/:id" element={<RedirectLink />} />
             {/* protected routes */}
             <Route
               path="/link/:id"
