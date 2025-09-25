@@ -1,7 +1,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+export const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -48,7 +48,6 @@ export async function getUserDetails() {
         if (!session) {
             return null;
         }
-        console.log("entered this function");
         return session.user;
     } catch (error) {
         console.log("Error getting user:", error);
