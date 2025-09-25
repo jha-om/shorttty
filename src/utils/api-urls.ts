@@ -5,7 +5,7 @@ interface createUrlProp {
     longUrl: string,
     customUrl: string,
     user_id: string,
-    qrcode: string,
+    qrcode: File,
 }
 
 export async function getUrls(userId: string): Promise<any[]> {
@@ -40,12 +40,13 @@ export async function createUrl({ title, longUrl, customUrl, user_id, qrcode }: 
     }
 
     const qr = `${supabaseUrl}/storage/v1/object/public/qrs/${fileName}`;
+    console.log("qr: ", qr);
 
     const { data, error } = await supabase.from("urls").insert([
         {
             title,
             original_url: longUrl,
-            create_url: customUrl || null,
+            custom_url: customUrl || null,
             user_id,
             short_url,
             qr,

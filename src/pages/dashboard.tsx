@@ -1,7 +1,6 @@
 import CreateLink from "@/components/CreateLink";
 import LinkCard from "@/components/LinkCard";
 import Loading from "@/components/Loading";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
@@ -38,8 +37,8 @@ const Dashboard = () => {
     const [loadingClicks, setLoadingClicks] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { user, loading:authLoading } = useAuth();
-    
+    const { user, loading: authLoading } = useAuth();
+
     // fetching urls and no. of clicks for that urls when user is available;
     useEffect(() => {
         const fetchUrls = async () => {
@@ -59,16 +58,16 @@ const Dashboard = () => {
                 setLoadingUrls(false);
             }
         }
-        
+
         fetchUrls();
     }, [user?.id]);
-    
+
     useEffect(() => {
         const fetchClicks = async () => {
             if (!urls.length) {
                 return;
             }
-            
+
             try {
                 setLoadingClicks(true);
                 setError(null);
@@ -102,7 +101,7 @@ const Dashboard = () => {
 
     return (
         <div className="md:max-w-7xl lg:max-w-6xl mx-auto flex flex-col gap-10">
-            
+
             {/* link state */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="bg-white/5 backdrop-blur-2xl">
@@ -125,7 +124,7 @@ const Dashboard = () => {
 
             <div className="flex justify-between">
                 <h1 className="md:text-2xl text-3xl font-semibold text-pretty">My Links</h1>
-                    <CreateLink />
+                <CreateLink />
             </div>
 
             <div className="relative">
@@ -149,10 +148,7 @@ const Dashboard = () => {
             {/* all the filtered urls */}
             {(filteredUrls || []).map((url, i) => {
                 return (
-                    <>
-                        {console.log(url)}
-                        <LinkCard key={i} url={url} onDelete={handleUrlDelete} />
-                    </>
+                    <LinkCard key={i} url={url} onDelete={handleUrlDelete} />
                 )
             })}
         </div>

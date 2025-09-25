@@ -7,13 +7,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
-import QrCode from "./QrCode";
+import QrCode, { type QrCodeRef } from "./QrCode";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
+import { useAuth } from "@/hooks/use-auth";
+import { createUrl } from "@/utils/api-urls";
 
 const FormValidation = z.object({
     title: z.string().min(3, "Title is required & must be atleast 3 characters"),
@@ -27,10 +29,10 @@ const FormValidation = z.object({
 type FormData = z.infer<typeof FormValidation>;
 
 export default function CreateLink() {
-    // const { user, error: authError, loading: authLoading } = useAuth();
-    const navigate = useNavigate();
+    const { user } = useAuth();
     const [searchParams, setSearchParams] = useSearchParams();
     const longUrl = searchParams.get("createNew");
+    const ref = useRef<QrCodeRef>(null);
 
     const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
     const [formValues, setFormValues] = useState<FormData>({
@@ -52,6 +54,61 @@ export default function CreateLink() {
         }
     }
 
+    const handleSubmit = async () => {
+        try {
+            setErrors({});
+            const validatingData = FormValidation.safeParse(formValues);
+            if (!validatingData.success) {
+                const fieldErrors: Partial<Record<keyof FormData, string>> = {};
+                validatingData.error.issues.forEach((err) => {
+                    if (err.path[0]) {
+                        fieldErrors[err.path[0] as keyof FormData] = err.message;
+                    }
+                });
+                setErrors(fieldErrors);
+                return;
+            }
+            setIsSubmitting(true);
+
+            let qrCodeBlob: Blob | null = null;
+            
+            if (ref.current) {
+                qrCodeBlob = await ref.current.getQRCodeBlob();
+            }
+            console.log(qrCodeBlob);
+
+            if (!qrCodeBlob) {
+                throw new Error("failed to generate QR Code");
+            }
+
+            const qrCodeFile = new File([qrCodeBlob], 'qr-code.png')
+            console.log(qrCodeFile);
+            await createUrl({
+                ...validatingData.data,
+                customUrl: validatingData.data.customUrl || "",
+                user_id: user?.id as string,
+                qrcode: qrCodeFile,
+            })
+
+            setSearchParams({});
+            window.location.href = '/dashboard'
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                const fieldErrors: Partial<Record<keyof FormData, string>> = {};
+                error.issues.forEach((err) => {
+                    if (err.path[0]) {
+                        fieldErrors[err.path[0] as keyof FormData] = err.message;
+                    }
+                });
+                setErrors(fieldErrors);
+            } else {
+                console.error("Error creating URL: ", error);
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    }
+
     return (
         <Dialog
             defaultOpen={!!longUrl}
@@ -61,9 +118,7 @@ export default function CreateLink() {
                 }
             }}
         >
-            <DialogTrigger>
-                <Button variant={"ghost"}>Create New Link</Button>
-            </DialogTrigger>
+            <DialogTrigger>Create New Link</DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Create New Short URL</DialogTitle>
@@ -74,6 +129,7 @@ export default function CreateLink() {
                 {formValues.longUrl && !errors.longUrl && (
                     <div className="flex justify-center py-4">
                         <QrCode
+                            ref={ref}
                             value={formValues.longUrl}
                             size={180}
                             bgColor="#ffffff"
@@ -128,7 +184,7 @@ export default function CreateLink() {
                 </div>
                 <DialogFooter className="sm:justify-start">
                     <Button
-                        // onClick={}
+                        onClick={handleSubmit}
                         disabled={isSubmitting}
                         className="w-full"
                     >
