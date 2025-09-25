@@ -40,7 +40,6 @@ export async function createUrl({ title, longUrl, customUrl, user_id, qrcode }: 
     }
 
     const qr = `${supabaseUrl}/storage/v1/object/public/qrs/${fileName}`;
-    console.log("qr: ", qr);
 
     const { data, error } = await supabase.from("urls").insert([
         {

@@ -7,15 +7,16 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
+import { createUrl } from "@/utils/api-urls";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import QrCode, { type QrCodeRef } from "./QrCode";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
-import { useAuth } from "@/hooks/use-auth";
-import { createUrl } from "@/utils/api-urls";
+import useDebounce from "@/hooks/use-debounce";
 
 const FormValidation = z.object({
     title: z.string().min(3, "Title is required & must be atleast 3 characters"),
@@ -30,10 +31,11 @@ type FormData = z.infer<typeof FormValidation>;
 
 export default function CreateLink() {
     const { user } = useAuth();
+    const navigate = useNavigate();
+
     const [searchParams, setSearchParams] = useSearchParams();
     const longUrl = searchParams.get("createNew");
     const ref = useRef<QrCodeRef>(null);
-
     const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
     const [formValues, setFormValues] = useState<FormData>({
         title: "",
@@ -41,6 +43,41 @@ export default function CreateLink() {
         customUrl: "",
     })
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [urlPreview, setUrlPreview] = useState<string>("");
+
+    // use debouncing to delay the network request after {delay} seconds;
+    const debouncedFormValues = useDebounce(formValues, 2000)
+    const debouncedLongUrl = useDebounce(formValues.longUrl, 2000)
+
+    useEffect(() => {
+        if (debouncedLongUrl && debouncedLongUrl.trim()) {
+            try {
+                new URL(debouncedLongUrl);
+                setUrlPreview(debouncedLongUrl);
+            } catch {
+                setUrlPreview("");
+            }
+        } else {
+            setUrlPreview("");
+        }
+    }, [debouncedLongUrl]);
+
+    useEffect(() => {
+        if (debouncedFormValues.longUrl) {
+            const validation = FormValidation.safeParse(debouncedFormValues);
+            if (!validation.success) {
+                const fieldErrors: Partial<Record<keyof FormData, string>> = {};
+                validation.error.issues.forEach((err) => {
+                    if (err.path[0]) {
+                        fieldErrors[err.path[0] as keyof FormData] = err.message;
+                    }
+                });
+                setErrors(fieldErrors);
+            } else {
+                setErrors({});
+            }
+        }
+    }, [debouncedFormValues]);
 
     // handling input changes
     const handleInputChange = (field: keyof FormData, value: string) => {
@@ -71,19 +108,18 @@ export default function CreateLink() {
             setIsSubmitting(true);
 
             let qrCodeBlob: Blob | null = null;
-            
+
             if (ref.current) {
                 qrCodeBlob = await ref.current.getQRCodeBlob();
             }
-            console.log(qrCodeBlob);
 
             if (!qrCodeBlob) {
                 throw new Error("failed to generate QR Code");
             }
 
             const qrCodeFile = new File([qrCodeBlob], 'qr-code.png')
-            console.log(qrCodeFile);
-            await createUrl({
+
+            const response = await createUrl({
                 ...validatingData.data,
                 customUrl: validatingData.data.customUrl || "",
                 user_id: user?.id as string,
@@ -91,7 +127,13 @@ export default function CreateLink() {
             })
 
             setSearchParams({});
-            window.location.href = '/dashboard'
+
+            if (response && response[0].id) {
+                navigate(`/link/${response[0].id}`);
+            } else {
+                navigate('/dashboard');
+            }
+            // window.location.href = `/link/${url.id}`
         } catch (error) {
             if (error instanceof z.ZodError) {
                 const fieldErrors: Partial<Record<keyof FormData, string>> = {};
@@ -126,16 +168,18 @@ export default function CreateLink() {
                         Create a new short URL to share it with anyone
                     </DialogDescription>
                 </DialogHeader>
-                {formValues.longUrl && !errors.longUrl && (
+                
+                {urlPreview && !errors.longUrl && (
                     <div className="flex justify-center py-4">
                         <QrCode
                             ref={ref}
-                            value={formValues.longUrl}
+                            value={urlPreview} // ✅ Uses debounced URL
                             size={180}
                             bgColor="#ffffff"
                         />
                     </div>
                 )}
+                
                 <div className="space-y-4">
                     {/* title */}
                     <div>
@@ -163,6 +207,12 @@ export default function CreateLink() {
                         {/* error message todo: */}
                         {errors.longUrl && (
                             <p className="mt-1 text-red-500 text-sm">{errors.longUrl}</p>
+                        )}
+
+                        {formValues.longUrl !== debouncedLongUrl && formValues.longUrl && (
+                            <p className="text-xs text-gray-500 mt-1">
+                                ⏳ Generating QR code...
+                            </p>
                         )}
                     </div>
                     {/* custom url input */}
