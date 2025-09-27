@@ -11,12 +11,12 @@ export default supabase
 export async function signInWithGithub() {
 
     try {
-        const baseUrl = `https://shorttty.vercel.app`;
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: `${baseUrl}/`
+                redirectTo: `${window.location.origin}`
             }
+
         })
         if (error) {
             throw error;
