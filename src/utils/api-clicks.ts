@@ -20,14 +20,12 @@ export async function getClicks(url_id: string): Promise<any> {
         .from("clicks")
         .select("*")
         .eq("url_id", url_id)
+        .select()
 
     if (error) {
         console.error("unable to load stats");
         throw new Error(error.message);
-    }
-
-    console.log(data);
-    
+    }    
     return data;
 }
 

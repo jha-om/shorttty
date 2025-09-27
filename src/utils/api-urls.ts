@@ -80,7 +80,6 @@ export async function getUrl(id: string, user_id: string): Promise<any> {
         console.error("unable to get this url");
         throw new Error(error.message);
     }
-    console.log(data);
 
     return data;
 }

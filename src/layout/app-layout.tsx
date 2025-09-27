@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 
 interface AppLayoutProps {
@@ -23,13 +24,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         <main className="min-h-screen">
           <div className="px-6 py-4">
             <Header />
-            
             <div className="mt-4">
               {children}
             </div>
           </div>
         </main>
       </div>
+      <Footer />
     </div>
   )
 }

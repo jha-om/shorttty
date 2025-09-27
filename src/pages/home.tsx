@@ -61,7 +61,7 @@ const Home = () => {
                             onChange={(e) => setLongURL(e.target.value)}
                             type="url"
                             placeholder="Enter the long ass URL"
-                            className="h-14 flex-1 px-6 py-4 text-white placeholder:text-gray-400 bg-white/10 border-white/20 rounded-lg"
+                            className="h-14 flex-1 px-6 py-4 text-white placeholder:text-gray-400 bg-white/10 border-white/20 rounded-lg backdrop-blur-2xl"
                             disabled={isSubmitting}
                         />
                         <Button

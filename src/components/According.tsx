@@ -7,7 +7,7 @@ import {
 
 export default function AccordionComponent() {
     return (
-        <Accordion type="single" collapsible defaultValue="item-1">
+        <Accordion type="single" collapsible>
             <AccordionItem value="item-1">
                 <AccordionTrigger  className="cursor-pointer hover:no-underline">How does the shorttty the URL works?</AccordionTrigger>
                 <AccordionContent className="text-base">
