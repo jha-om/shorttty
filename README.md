@@ -35,6 +35,10 @@ Shorttty is a full-featured URL shortening service built with React, TypeScript,
 
 
 
+https://github.com/user-attachments/assets/68e385a2-e7ca-4bbc-b8a1-719bc86d6fba
+
+
+
 ## 🚀 Tech Stack
 
 | Category | Technologies |
