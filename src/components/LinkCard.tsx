@@ -1,9 +1,7 @@
+import { useUrlOperations } from "@/hooks/use-url-operations"
 import type { Url } from "@/pages/dashboard"
-import { deleteUrl } from "@/utils/api-urls"
-import { useState } from "react"
 import { Link } from "react-router-dom"
 import ActionButtons from "./ActionButtons"
-import { useUrlOperations } from "@/hooks/use-url-operations"
 import StatusBanner from "./StatusBanner"
 
 interface LinkCardProps {

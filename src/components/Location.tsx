@@ -1,4 +1,4 @@
-import { LineChart, XAxis, YAxis, Line, ResponsiveContainer } from "recharts"
+import { LineChart, XAxis, YAxis, Line } from "recharts"
 import {
     Card,
     CardContent,
@@ -104,7 +104,7 @@ export default function Location({ clicksData }: LocationProps) {
                                     <ChartTooltipContent
                                         hideLabel={false}
                                         labelFormatter={(value) => `City: ${value}`}
-                                        formatter={(value, name) => [
+                                        formatter={(value) => [
                                             `${value} `,
                                             'Clicks'
                                         ]}

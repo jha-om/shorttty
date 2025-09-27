@@ -65,7 +65,6 @@ export default function Link() {
                 setError(null);
 
                 const response = await getClicks(id);
-                console.log(response);
 
                 setClicksData(response || []);
             } catch (error) {
@@ -248,7 +247,12 @@ export default function Link() {
                                     )}
                                     {/* location info line chart */}
                                     <div className="backdrop-blur-2xl">
-                                        <Location clicksData={clicksData} />
+                                        <Location clicksData={clicksData.filter(click => click.city && click.country).map(click => ({
+                                            city: click.city!,
+                                            country: click.country!,
+                                            device: click.device || 'desktop',
+                                            created_at: click.created_at
+                                        }))} />
                                     </div>
                                 </div>
                             ) : (

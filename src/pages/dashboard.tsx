@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getClicksFromUrl } from "@/utils/api-clicks";
 import { getUrls } from "@/utils/api-urls";
 import { Filter } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export interface Url {
     id: string;
@@ -34,7 +34,6 @@ const Dashboard = () => {
     const [urls, setUrls] = useState<Url[]>([]);
     const [clicks, setClicks] = useState<Click[]>([]);
     const [loadingUrls, setLoadingUrls] = useState(false);
-    const [loadingClicks, setLoadingClicks] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const { user, loading: authLoading } = useAuth();
@@ -69,7 +68,6 @@ const Dashboard = () => {
             }
 
             try {
-                setLoadingClicks(true);
                 setError(null);
                 const urlIds = urls.map(url => url.id);
                 const clicksData = await getClicksFromUrl(urlIds);
@@ -77,8 +75,6 @@ const Dashboard = () => {
             } catch (error) {
                 console.error("error fetching clicks", error);
                 setError(error instanceof Error ? error.message : "failed to fetch clicks")
-            } finally {
-                setLoadingClicks(false);
             }
         }
         fetchClicks();
@@ -89,12 +85,14 @@ const Dashboard = () => {
         setClicks(prevClicks => prevClicks.filter(click => click.url_id !== deletedUrlId));
     }
     // now filtering according to the user filters
-    const filteredUrls = urls.filter(url => (
-        url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        url.original_url.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        url.custom_url?.toLowerCase().includes(searchQuery.toLowerCase())
-    ));
-
+    const filteredUrls = useMemo(() => {
+        return urls.filter(url => (
+            url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            url.original_url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            url.custom_url?.toLowerCase().includes(searchQuery.toLowerCase())
+        ))
+    }, [urls, searchQuery])
+    
     if (authLoading) {
         return <Loading />
     }
@@ -146,11 +144,15 @@ const Dashboard = () => {
             )}
 
             {/* all the filtered urls */}
-            {(filteredUrls || []).map((url, i) => {
-                return (
-                    <LinkCard key={i} url={url} onDelete={handleUrlDelete} />
-                )
-            })}
+            {loadingUrls ? (
+                <Loading />
+            ) : (
+                (filteredUrls || []).map((url, i) => {
+                    return (
+                        <LinkCard key={i} url={url} onDelete={handleUrlDelete} />
+                    )
+                })
+            )}
         </div>
     )
 }

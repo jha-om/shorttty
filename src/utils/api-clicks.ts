@@ -31,7 +31,7 @@ export async function getClicks(url_id: string): Promise<any> {
 
 const parser = new UAParser();
 
-export const storeClicks = async ({ id, originalURL }: { id: string, originalURL: string }): Promise<any> => {
+export const storeClicks = async ({ id }: { id: string, originalURL: string }): Promise<any> => {
     try {
         const res = parser.getResult();
         const device = res.device?.type || "desktop";
