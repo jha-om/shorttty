@@ -18,9 +18,15 @@ const RedirectLink = () => {
                 setError(null);
                 setLoading(true);
 
-                const response = await getLongURL(id as string)
-                setUrlData(response);
-                setLongUrl(response.original_url)
+                const response = await getLongURL(id || "")
+                
+                if (response && response.original_url) {   
+                    setUrlData(response);
+                    setLongUrl(response.original_url)
+                } else {
+                    console.error("No url found for this id: ", id);
+                    setError("Url not found");
+                }
             } catch (error) {
                 console.error("failed to get long url with this id");
                 setError(error instanceof Error ? error.message : "failed to get long url with this id");
@@ -28,7 +34,9 @@ const RedirectLink = () => {
                 setLoading(false);
             }
         }
-        fetchLongUrls();
+        if (id) {   
+            fetchLongUrls();
+        }
     }, [id]);
 
     // now getting the stats for that particular short_url
@@ -40,8 +48,6 @@ const RedirectLink = () => {
             try {
                 setError(null);
                 setLoadingStats(true);
-
-                console.log("storing click fro database ID: ", urlData.id);
 
                 await storeClicks({
                     id: urlData.id,

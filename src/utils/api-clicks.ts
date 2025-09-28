@@ -38,7 +38,6 @@ export const storeClicks = async ({ id }: { id: string, originalURL: string }): 
         const response = await fetch("https://ipapi.co/json");
         const { city, country_name: country } = await response.json();
 
-        console.log(city, country);
 
         const { data: clickData, error: clickError } = await supabase.from("clicks").insert({
             url_id: id,
@@ -51,8 +50,6 @@ export const storeClicks = async ({ id }: { id: string, originalURL: string }): 
             console.error("error inserting click: ", clickError);
             throw new Error(clickError.message);
         }
-
-        console.log("clicked stored successfully", clickData);
         return clickData;
     } catch (error) {
         console.error("Error clicking this url", error);

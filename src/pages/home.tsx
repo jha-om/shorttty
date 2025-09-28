@@ -36,7 +36,7 @@ const Home = () => {
             navigate(`/auth?createNew=${encodeURIComponent(longURL)}`); // Navigate to auth with URL
         }
         } catch (error) {
-            console.log("naviagation error:", error);
+            console.error("naviagation error:", error);
         } finally {
             setIsSubmitting(false);
         }
